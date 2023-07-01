@@ -56,7 +56,8 @@ def Let_model(power_list, model, k, first_search, min_length, max_volume, Datafr
     model = model
     
     total_component, item_list = model.start_set(k, 'high')
-
+    print(f'Model Start. k = {k}, Strict Search Range = {first_search}, Min Component Size = {min_length}, Max Volume = {max_volume}')
+    
     for i in range(first_search):
         sampler(total_component, item_list, Dataframe)
         

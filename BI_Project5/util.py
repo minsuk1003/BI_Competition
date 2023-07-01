@@ -122,47 +122,105 @@ def volume_checker(item_list, newitem, Dataframe, min_length, maxvolume):
     return checker_1, checker_2
 
 def sampler(total_component, item_list, Dataframe):
-      random.shuffle(item_list)
-      item = item_list[0]
+    random.shuffle(item_list)
+    item = item_list[0]
 
-      temp_tuples = []
-      for index, component in enumerate(total_component):
-            temp_component = component.copy()
-            temp_component.append(item)
-            damage_now = damage_sum(component, Dataframe)
-            damage_pred = damage_sum(temp_component, Dataframe)
-            
-            if damage_pred < damage_now:
-                  change = damage_now - damage_pred
-                  temp_tuple = (index, change)
-                  temp_tuples.append(temp_tuple)
-            
-      if len(temp_tuples) > 0:
-            max_value = max(temp_tuples, key=lambda x: x[1])
-            max_index = temp_tuples.index(max_value)
-      
-            if max_value[1] > 0:
-                  total_component[max_index].append(item)
-                  item_list.remove(item)
+    temp_tuples = []
+    for index, component in enumerate(total_component):
+        temp_component = component.copy()
+        temp_component.append(item)
+        damage_now = damage_sum(component, Dataframe)
+        damage_pred = damage_sum(temp_component, Dataframe)
+        
+        if damage_pred < damage_now:
+                change = damage_now - damage_pred
+                temp_tuple = (index, change)
+                temp_tuples.append(temp_tuple)
+        
+    if len(temp_tuples) > 0:
+        max_value = max(temp_tuples, key=lambda x: x[1])
+        max_index = temp_tuples.index(max_value)
+    
+        if max_value[1] > 0:
+                total_component[max_index].append(item)
+                item_list.remove(item)
                   
 def sampler_rate(total_component, item_list, min_length, max_volume, Dataframe):
-      random.shuffle(item_list)
-      item = item_list[0]
-      temp_tuples = []
-      for index, component in enumerate(total_component):
+    random.shuffle(item_list)
+    item = item_list[0]
+    temp_tuples = []
+    for index, component in enumerate(total_component):
+        temp_component = component.copy()
+        temp_component.append(item)
+        damage_now = damage_percent(component, Dataframe)
+        damage_pred = damage_percent(temp_component, Dataframe)
+        
+        check_1, check_2 = volume_checker(temp_component, item, Dataframe, min_length, max_volume)
+        
+        if (check_1 == True) & (check_2 == True):   
+                change = damage_now - damage_pred
+                temp_tuple = (index, change)
+                temp_tuples.append(temp_tuple)
+    
+    if len(temp_tuples) != 0:
+        min_value = min(temp_tuples, key=lambda x: x[1])
+        min_index = temp_tuples.index(min_value)
+        total_component[min_index].append(item)
+        item_list.remove(item)
+
+    else:
+        max_volume_2 = (max_volume * 1.3)
+        for index, component in enumerate(total_component):
             temp_component = component.copy()
             temp_component.append(item)
             damage_now = damage_percent(component, Dataframe)
             damage_pred = damage_percent(temp_component, Dataframe)
             
-            check_1, check_2 = volume_checker(temp_component, item, Dataframe, min_length, max_volume)
+            check_1, check_2 = volume_checker(temp_component, item, Dataframe, min_length, max_volume_2)
             
             if (check_1 == True) & (check_2 == True):   
-                  change = damage_now - damage_pred
-                  temp_tuple = (index, change)
-                  temp_tuples.append(temp_tuple)
-            
-      min_value = min(temp_tuples, key=lambda x: x[1])
-      min_index = temp_tuples.index(min_value)
-      total_component[min_index].append(item)
-      item_list.remove(item)
+                change = damage_now - damage_pred
+                temp_tuple = (index, change)
+                temp_tuples.append(temp_tuple)
+                
+        min_value = min(temp_tuples, key=lambda x: x[1])
+        min_index = temp_tuples.index(min_value)
+        total_component[min_index].append(item)
+        item_list.remove(item)
+          
+def model_checker(item_list, Dataframe):
+    medium_volume = 0
+    small_volume = 0
+    
+    for i in item_list:
+        power_volume = set_item(i, Dataframe)[0]
+        
+        if power_volume > 1000:
+            medium_volume = medium_volume + power_volume
+        else:
+            small_volume = small_volume + power_volume
+    
+    total_volume = medium_volume + small_volume
+    
+    return total_volume, medium_volume, small_volume
+
+def money_sum(item_list, Dataframe):
+    total_real_array = np.zeros((31, 24))
+    total_pred_array = np.zeros((31, 24))
+    total_power_volumes = 0
+
+    for i in item_list:
+        temp = Processing(i, Dataframe)
+        total_real_array = total_real_array + temp.real_array
+        total_pred_array = total_pred_array + temp.pred_array
+        total_power_volumes = total_power_volumes + temp.power_volume
+        
+    total_usage_masked = usage_masking(total_real_array / total_power_volumes) 
+    total_error_array = error_cal(total_power_volumes, total_real_array, total_pred_array)
+    total_error_masked = error_masking(error_cal(total_power_volumes, total_real_array, total_pred_array))
+    total_real_money = total_real_array * total_usage_masked * total_error_masked
+    total_best_money = total_real_array * 4
+    total_take_percent = (total_real_money.sum()) / (total_best_money.sum())
+    
+    return total_real_money.sum(), total_best_money.sum(), total_take_percent
+

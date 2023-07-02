@@ -169,19 +169,17 @@ def sampler_rate(total_component, item_list, min_length, max_volume, Dataframe):
         item_list.remove(item)
 
     else:
-        max_volume_2 = (max_volume * 1.3)
         for index, component in enumerate(total_component):
             temp_component = component.copy()
             temp_component.append(item)
             damage_now = damage_percent(component, Dataframe)
             damage_pred = damage_percent(temp_component, Dataframe)
-            
-            check_1, check_2 = volume_checker(temp_component, item, Dataframe, min_length, max_volume_2)
-            
-            if (check_1 == True) & (check_2 == True):   
-                change = damage_now - damage_pred
-                temp_tuple = (index, change)
-                temp_tuples.append(temp_tuple)
+            check_1, check_2 = volume_checker(temp_component, item, Dataframe, min_length, max_volume)
+
+            if (check_2 == True):   
+                    change = damage_now - damage_pred
+                    temp_tuple = (index, change)
+                    temp_tuples.append(temp_tuple)            
                 
         min_value = min(temp_tuples, key=lambda x: x[1])
         min_index = temp_tuples.index(min_value)

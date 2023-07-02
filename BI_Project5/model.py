@@ -43,19 +43,17 @@ class Kcluster:
 
             del_list =[]
             for order, values in enumerate(damage_dict):
-                print(values)
                 total_component[order].append(values)
                 del_list.append(values)
             for delete in del_list:
-                print(delete)
                 item_list.remove(delete)
             return total_component, item_list
         
-def Let_model(power_list, model, k, first_search, min_length, max_volume, Dataframe):
+def Let_model(power_list, model, k, first_search, min_length, max_volume, Dataframe, Method = 'high'):
     Power_list = power_list
     model = model
     
-    total_component, item_list = model.start_set(k, 'high')
+    total_component, item_list = model.start_set(k, Method)
     print(f'Model Start. k = {k}, Strict Search Range = {first_search}, Min Component Size = {min_length}, Max Volume = {max_volume}')
     
     for i in range(first_search):

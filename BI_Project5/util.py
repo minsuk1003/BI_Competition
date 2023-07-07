@@ -22,7 +22,7 @@ def usage_masking(array):
     return array
 
 def error_cal(volume, real, pred):
-    value = (abs(real-pred)) / (volume)
+    value = (abs(pred-real)) / (volume)
     return value
 
 def error_masking(array):

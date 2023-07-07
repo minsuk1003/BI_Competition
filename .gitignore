@@ -1,0 +1,10 @@
+*.pyc
+*.pth
+BI_Project4_with_DLinear/data/
+BI_Project4_with_DLinear/result.txt
+BI_Project4_with_DLinear/test_results/
+BI_Project4_with_DLinear/results/
+BI_Project4_with_DLinear/logs/
+BI_Project5/result_data/
+
+.DS_Store

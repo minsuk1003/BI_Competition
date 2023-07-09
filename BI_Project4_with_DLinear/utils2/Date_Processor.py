@@ -102,5 +102,41 @@ class WeightedAverageCalculator:
                     total_weight += self.weights_scaled[i]
             self.data_df['전체지역_' + attribute + '_가중평균'] = total / total_weight
         return self.data_df
-# calculator = WeightedAverageCalculator('지역별 주거용 전력판매량.csv', './data/weather_electric_data.csv', '연도')
-# result_df = calculator.calculate_weighted_average()
+
+def error_cal(Actual_data, predicted_data, method='mape', return_df = False):
+    actual = Actual_data.copy()
+    predict = predicted_data.copy()
+    
+    merged_df = pd.merge(actual, predict, on='date', how='outer')
+    merged_df = merged_df.dropna()
+    
+    if method == 'mape':
+        mape = (abs(merged_df['현재수요(MW)_x'] - merged_df['현재수요(MW)_y']) / merged_df['현재수요(MW)_x'])
+        temp_df = pd.DataFrame({'date' : merged_df['date'], 'mape' : mape})
+        mean_mape = mape.mean()
+
+        if return_df == True:
+            return mean_mape, temp_df
+        else:
+            return mean_mape
+
+    if method == 'mse':
+        mse = np.power((merged_df['현재수요(MW)_x'] - merged_df['현재수요(MW)_y']), 2)
+        temp_df = pd.DataFrame({'date' : merged_df['date'], 'mse' : mse})
+        mean_mse = mse.mean()
+
+        if return_df == True:
+            return mean_mse, temp_df
+        else:
+            return mean_mse
+        
+    if method == 'rmse':
+        rmse = np.sqrt((np.power((merged_df['현재수요(MW)_x'] - merged_df['현재수요(MW)_y']), 2)).mean())
+        temp_df = pd.DataFrame({'date' : merged_df['date'], 'rmse' : rmse})
+        mean_rmse = rmse.mean()
+
+        if return_df == True:
+            return mean_rmse, temp_df
+        else:
+            return mean_rmse
+    

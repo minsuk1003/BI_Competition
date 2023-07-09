@@ -7,7 +7,7 @@ def arg_set(folder_path, data, model_name):
         # basic config
         is_training = 1,                                  # default = 1
         train_only = False,                               # default = False
-        model_id = f'D_Linear_{data}_{model_name}',
+        model_id = f'{data}_{model_name}',
         model = 'DLinear',                                # options: [DLinear, NLinear, Autoformer, Informer, Transformer, etc...]
 
         # Data Loader
